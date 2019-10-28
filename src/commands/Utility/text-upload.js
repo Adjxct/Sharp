@@ -1,35 +1,22 @@
+const hastebin = require('hastebin-gen');
 function makeCommand(name, displayName, methodName) {
     return {
         run: async (bot, msg, args) => {
-            const parsed = bot.utils.parseArgs(args, 'r');
 
-            if (parsed.leftover.length < 1) {
-                throw 'You must have something to upload!';
-            }
+            let haste = args.slice(0).join(' ')
 
-            await msg.edit(':arrows_counterclockwise: Uploading...');
-            const { url, rawUrl } = await bot.utils[methodName](parsed.leftover.join(' '));
+       if (!args[0]) { return msg.edit('What do you want to post in Hastebin?') }
 
-            if (!url) {
-                throw 'Failed to upload, no key was returned!';
-            }
+        hastebin(haste).then(r => {
 
-            if (parsed.options.r) {
-                msg.edit(`:white_check_mark: ${rawUrl}`);
-            } else {
-                msg.edit(`:white_check_mark: ${url}`);
-            }
+            msg.edit('`Posted to Hastebin at this URL:`  ' + r);
+
+        }).catch(console.error);
         },
         info: {
             name,
             usage: `${name} <text>`,
             description: `Uploads some text to ${displayName}`,
-            options: [
-                {
-                    name: '-r',
-                    description: 'Returns the URL for a raw version of your upload'
-                }
-            ]
         }
     };
 }
